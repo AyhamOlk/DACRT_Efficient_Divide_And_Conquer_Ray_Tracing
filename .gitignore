@@ -12,3 +12,10 @@ _deps
 build/*
 build
 *.ppm
+.idea/*
+cmake-build-debug/*
+build/
+.idea/
+*.ppm
+cmake-build-debug/
+*.off

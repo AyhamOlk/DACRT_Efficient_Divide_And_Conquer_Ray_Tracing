@@ -20,9 +20,9 @@ using namespace std;
 const float Ct = 1;
 const float Ci = 1;
 
-const int RAYS_THRESHOLD = 10;
-const int TRIANGLES_THRESHOLD = 12;
-const int NB_SUBDIVISIONS = 32;
+const int RAYS_THRESHOLD = 30;
+const int TRIANGLES_THRESHOLD = 30;
+const int NB_SUBDIVISIONS = 10;
 
 class DACRT_Algorithms {
 public:
@@ -80,8 +80,10 @@ public:
 
 
         //Base condition
-        if(Nr < RAYS_THRESHOLD || Nt < TRIANGLES_THRESHOLD || true) {
-
+        if(Nr < RAYS_THRESHOLD || Nt < TRIANGLES_THRESHOLD) {
+            if(debug)
+                std::cout<<"\nCalling Naiive Render";
+            //rayTracer.myRender_skip(scene, image, allRays, globalCounter, visited, Triangles);
             rayTracer.myRender(scene, image, allRays, globalCounter, visited);
             return;
             //TODO Need to call NAIIVE RT which is the old ray tracer code
@@ -89,7 +91,8 @@ public:
 
         //Finding the stats of the bins
         vector<BinStats> bins = binningSubdivision(Volume, Triangles, k);
-
+        if(debug)
+            std::cout<<"\nDone binning";
         //Inintialzing vectors
         vector<int> cLeft, cRight, nLeft, nRight;
 
@@ -116,8 +119,8 @@ public:
         float C = 0;
 
         for(int i=0; i<k; i++) {
-            bins.at(i).L_alpha = float(cLeft.at(i))/float(Ns);
-            bins.at(i).R_alpha = float(cRight.at(i))/float(Ns);
+            bins.at(i).L_alpha = float(cLeft.at(i))/float(Ns + 0.001);
+            bins.at(i).R_alpha = float(cRight.at(i))/float(Ns + 0.001);
 
             //cost function calculation
             C = Ct + Ci*(bins.at(i).L_alpha*bins.at(i).L_triangles_indices.size() +
@@ -239,12 +242,17 @@ public:
                 cLeft.at(i)++;
                 distanceLeft = entryDistance;
             }
+            /*if(debug)
+                std::cout<<"\n done for left";
+*/
 
             if(bins.at(i).R_volume.intersect(ray, entryDistance, exitDistance)) {//TODO need to check if empty or dont care?
                 cRight.at(i)++;
                 distanceRight = entryDistance;
             }
-
+  /*          if(debug)
+                std::cout<<"\n done for right";
+*/
             if(distanceLeft < distanceRight) {
                 nLeft.at(i)++;
             }

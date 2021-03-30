@@ -1,4 +1,5 @@
 #define _USE_MATH_DEFINES
+
 #include <cmath>
 #include <iostream>
 #include <fstream>
@@ -54,76 +55,82 @@ void foo(AABB Volume, vector<MyTriangle> Triangles, vector<Ray> Rays, const Scen
 
 // Usage: argv[0] [-o file.ppm]
 int main (int argc, char ** argv) {
-	
-	// Parsing the command line arguments
-	CommandLine args;
-	if (argc > 1) {
-		try {
-			args.parse(argc, argv);
-		} catch (const std::exception & e) {
-			std::cerr << e.what() << std::endl;
-			args.printUsage (argv[0]);
-			exit(1);
-		}
-	}
+
+    // Parsing the command line arguments
+    CommandLine args;
+    if (argc > 1) {
+        try {
+            args.parse(argc, argv);
+        } catch (const std::exception & e) {
+            std::cerr << e.what() << std::endl;
+            args.printUsage (argv[0]);
+            exit(1);
+        }
+    }
 
 
-	//Testing Cube binning
-  /*  DACRT_Algorithms Algo;
-	AABB cube(Vec3f{0,0,0}, Vec3f{20,20,20});
-	vector<AABB> bins = Algo.binningSubdivision(cube, 20);
+    //Testing Cube binning
+    /*  DACRT_Algorithms Algo;
+      AABB cube(Vec3f{0,0,0}, Vec3f{20,20,20});
+      vector<AABB> bins = Algo.binningSubdivision(cube, 20);
 
-	for(auto it = bins.begin(); it != bins.end(); it++) {
-	    std::cout<<"bin min: "<<it->min <<", max: "<< it->max << " \n";
-	}*/
+      for(auto it = bins.begin(); it != bins.end(); it++) {
+          std::cout<<"bin min: "<<it->min <<", max: "<< it->max << " \n";
+      }*/
 
     //test_DACRT();
 
-	// Initialization
+    // Initialization
 
-	//Image image (args.width (), args.height ());
+    //Image image (args.width (), args.height ());
     Image image (480, 270);
 
 
-	Scene scene;
-	Camera camera(Vec3f(0.f, 0.f, 1.f),
-				  Vec3f(),
-				  Vec3f(0.f, 1.f, 0.f),
-				  60.f,
-				  float(args.width()) / args.height());
+    Scene scene;
+    Camera camera(Vec3f(0.f, 0.f, 1.f),
+                  Vec3f(),
+                  Vec3f(0.f, 1.f, 0.f),
+                  60.f,
+                  float(args.width()) / args.height());
 
-	scene.camera() = camera;
+    scene.camera() = camera;
 
-	LightSource lightSource(Vec3f(10,10,0), Vec3f(1,1,1), 0.2);
-	
-	// Loading a mesh
+    //LightSource lightSource(Vec3f(0,-2,-1), Vec3f(1,1,1), 20);
+    //LightSource lightSource(Vec3f(1,1,2), Vec3f(1,1,1), 0.2);
+    LightSource lightSource(Vec3f(0,0,3), Vec3f(1,1,1), 0.2);
+    // Loading a mesh
 
-	Mesh mesh;
-	Mesh floor;
-	try {
-		//mesh.loadOFF("example.off");
-        mesh.loadOFF("lowResFace.off");
+    Mesh mesh;
+    Mesh floor;
+    try {
+        //mesh.loadOFF("example.off");
+        //mesh.loadOFF("highResFace.off");
+        mesh.loadOFF("rhino.off");
         floor.loadOFF("floor.off");
 
-	}
-	catch (const std::exception & e) {
-		std::cerr << e.what() << std::endl;
-		exit(1);
-	}
-	scene.meshes ().push_back (mesh);
-	scene.meshes().push_back(floor);
-
-	// Rendering OLD
-	/*RayTracer rayTracer;
-	image.fillBackground ();
-	std::cout << "Ray tracing: starts";
-	rayTracer.render (scene, image);
-	std::cout << "ends." << std::endl;
-	image.savePPM (args.outputFilename ());*/
-	
+    }
+    catch (const std::exception & e) {
+        std::cerr << e.what() << std::endl;
+        exit(1);
+    }
 
 
-	//MY renderring
+
+
+    scene.meshes ().push_back (mesh);
+    scene.meshes().push_back(floor);
+
+    // Rendering OLD
+    /*RayTracer rayTracer;
+    image.fillBackground ();
+    std::cout << "Ray tracing: starts";
+    rayTracer.render (scene, image);
+    std::cout << "ends." << std::endl;
+    image.savePPM (args.outputFilename ());*/
+
+
+
+    //MY renderring
     size_t w = image.width();
     size_t h = image.height();
     //const Camera& camera = scene.camera();
@@ -147,6 +154,8 @@ int main (int argc, char ** argv) {
         if(P.at(i)[2]>max[2]) max[2] = P.at(i)[2];
     }
     std::cout<<"\nmin "<<min<<" max: "<<max;
+    max = {1,1,1};
+    min = {-1,-1,-1};
     AABB Volume(min, max);
     vector<MyTriangle> Triangles;
     vector<Ray> Rays;
@@ -191,6 +200,8 @@ int main (int argc, char ** argv) {
     std::cout<<"\nTotal number of Rays: "<<Rays.size();
     std::cout<<"\nTotal number of Triangles: "<<Triangles.size()<<"\n\n\n";
 
+    vector<MyTriangle> Triangles2;
+    vector<Ray> Rays2;
 
     image.fillBackground ();
     DACRT_Algorithms algo(Volume, Triangles, Rays, scene, image);
@@ -209,3 +220,7 @@ int main (int argc, char ** argv) {
 
     return 0;
 }
+
+
+
+//-----------------------------------------------------------------------------------------

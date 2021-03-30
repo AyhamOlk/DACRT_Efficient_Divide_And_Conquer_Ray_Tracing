@@ -1,5 +1,5 @@
 //
-// Created by khalig on 02.03.21.
+// Created by Ayham on 02.03.21.
 //
 #include "Vec3.h"
 #include "Ray.h"
@@ -18,14 +18,22 @@ public:
     // todo: bool intersect to be changed
     bool intersect(const Ray &r, float &entry, float &exit)
     {
-        float tmin = (min[0] - r.m_origin[0]) / r.m_direction[0];
-        float tmax = (max[0] - r.m_origin[0]) / r.m_direction[0];
+        float tmin = 0;
+        float tmax = 0;
+
+        float tymin = 0;
+        float tymax = 0;
+        //return true;
+        //try {
+        tmin = (min[0] - r.m_origin[0]) / (r.m_direction[0] + 0.0000001);
+        tmax = (max[0] - r.m_origin[0]) / (r.m_direction[0] + 0.0000001);
 
         if (tmin > tmax) swap(tmin, tmax);
 
-        float tymin = (min[1] - r.m_origin[1]) / r.m_direction[1];
-        float tymax = (max[1] - r.m_origin[1]) / r.m_direction[1];
-
+        tymin = (min[1] - r.m_origin[1]) / (r.m_direction[1] + 0.000001);
+        tymax = (max[1] - r.m_origin[1]) / (r.m_direction[1] + 0.000001);
+        //}
+        //catch () {}
         if (tymin > tymax) swap(tymin, tymax);
 
         if ((tmin > tymax) || (tymin > tmax))
@@ -37,8 +45,8 @@ public:
         if (tymax < tmax)
             tmax = tymax;
 
-        float tzmin = (min[2] - r.m_origin[2]) / r.m_direction[2];
-        float tzmax = (max[2] - r.m_origin[2]) / r.m_direction[2];
+        float tzmin = (min[2] - r.m_origin[2]) / (r.m_direction[2]+0.000001);
+        float tzmax = (max[2] - r.m_origin[2]) / (r.m_direction[2]+0.000001);
 
         if (tzmin > tzmax) swap(tzmin, tzmax);
 
