@@ -21,7 +21,7 @@ const float Ct = 1;
 const float Ci = 1;
 
 const int RAYS_THRESHOLD = 30;
-const int TRIANGLES_THRESHOLD = 30;
+const int TRIANGLES_THRESHOLD = 30; //116445
 const int NB_SUBDIVISIONS = 10;
 
 class DACRT_Algorithms {
@@ -72,6 +72,8 @@ public:
             for(int i =0; i<picks.size(); i++) {
                 Rays.push_back(allRays.at(picks.at(i)));
             }
+            if(debug)
+                std::cout<<"\nDone Ray Sampling";
         }
         else {
             Rays = allRays;
@@ -80,11 +82,11 @@ public:
 
 
         //Base condition
-        if(Nr < RAYS_THRESHOLD || Nt < TRIANGLES_THRESHOLD) {
+        if(Nr < RAYS_THRESHOLD || Nt < TRIANGLES_THRESHOLD ) {
             if(debug)
                 std::cout<<"\nCalling Naiive Render";
-            //rayTracer.myRender_skip(scene, image, allRays, globalCounter, visited, Triangles);
-            rayTracer.myRender(scene, image, allRays, globalCounter, visited);
+            rayTracer.myRender_skip(scene, image, allRays, globalCounter, visited, Triangles);
+            //rayTracer.myRender(scene, image, allRays, globalCounter, visited);
             return;
             //TODO Need to call NAIIVE RT which is the old ray tracer code
         }
@@ -134,7 +136,7 @@ public:
             }
         }
         if(debug)
-            std::cout<<"\nCost function calculated where Cmin is "<<Cmin<<" and jmin is"<<i_min;
+            std::cout<<"\nCost function calculated where Cmin is "<<Cmin<<" and jmin is "<<i_min;
         //Traversal order
         AABB firstChildVolume;
         vector<MyTriangle> firstChildTriangles;
@@ -191,7 +193,7 @@ public:
         vector<Ray> R1;
         float a,b;
 
-        if(firstAlpha>0.5 ){ //approximation
+        if(firstAlpha>0.5){ //approximation
 
             if(debug)
                 std::cout<<"\nSkip filterring not applied";
@@ -210,7 +212,7 @@ public:
         }
 
         //second child
-        if(secondAlpha>0.5 ){ //approximation
+        if(secondAlpha>0.5){ //approximation
 
             if(debug)
                 std::cout<<"\nSkip filterring not applied";
@@ -290,7 +292,7 @@ public:
         Vec3f step = {0, 0, 0};
         step[index] = jump;
 
-        Vec3f min_counter = Volume.min;
+        Vec3f min_counter = Volume.min + step;
 
         for(int i=0; i<k; i++) {
             BinStats b = BinStats(min_counter, index);

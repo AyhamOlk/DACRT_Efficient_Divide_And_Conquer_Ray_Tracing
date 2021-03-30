@@ -49,13 +49,23 @@ using namespace std;
     }
 }*/
 
+
+void test_My_triangle() {
+    Vec3f a = {4,0,0};
+    Vec3f b = {1,3,-4};
+    Vec3f c = {1,-2,-3};
+    MyTriangle t(a,b,c,0);
+    t.get_AABB().print();
+    std::cout<<"\n"<<t.get_center();
+}
+
 void foo(AABB Volume, vector<MyTriangle> Triangles, vector<Ray> Rays, const Scene& scene, Image& image) {
 
 }
 
 // Usage: argv[0] [-o file.ppm]
 int main (int argc, char ** argv) {
-
+    //test_My_triangle();
     // Parsing the command line arguments
     CommandLine args;
     if (argc > 1) {
@@ -103,11 +113,15 @@ int main (int argc, char ** argv) {
     Mesh mesh;
     Mesh floor;
     try {
-        //mesh.loadOFF("example.off");
-        //mesh.loadOFF("highResFace.off");
-        mesh.loadOFF("rhino.off");
+        //mesh.loadOFF("lowResFace.off");
+        mesh.loadOFF("highResFace.off");
+        //mesh.loadOFF("rhino.off");
+        //mesh.loadOFF("monkey.off");
         floor.loadOFF("floor.off");
-
+        /*for(int i=0; i<mesh.vertexPositions().size(); i++) {
+            mesh.vertexPositions().at(i)[2] -=1;
+        }
+*/
     }
     catch (const std::exception & e) {
         std::cerr << e.what() << std::endl;
@@ -118,7 +132,7 @@ int main (int argc, char ** argv) {
 
 
     scene.meshes ().push_back (mesh);
-    scene.meshes().push_back(floor);
+    //scene.meshes().push_back(floor);
 
     // Rendering OLD
     /*RayTracer rayTracer;
@@ -154,8 +168,8 @@ int main (int argc, char ** argv) {
         if(P.at(i)[2]>max[2]) max[2] = P.at(i)[2];
     }
     std::cout<<"\nmin "<<min<<" max: "<<max;
-    max = {1,1,1};
-    min = {-1,-1,-1};
+    //max = {1,1,1};
+    //min = {-1,-1,-1};
     AABB Volume(min, max);
     vector<MyTriangle> Triangles;
     vector<Ray> Rays;
@@ -200,8 +214,8 @@ int main (int argc, char ** argv) {
     std::cout<<"\nTotal number of Rays: "<<Rays.size();
     std::cout<<"\nTotal number of Triangles: "<<Triangles.size()<<"\n\n\n";
 
-    vector<MyTriangle> Triangles2;
-    vector<Ray> Rays2;
+ /*   vector<MyTriangle> Triangles2;
+    vector<Ray> Rays2;*/
 
     image.fillBackground ();
     DACRT_Algorithms algo(Volume, Triangles, Rays, scene, image);

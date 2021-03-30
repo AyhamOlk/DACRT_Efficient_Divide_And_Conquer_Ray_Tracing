@@ -53,7 +53,7 @@ public:
 
         //Filling the left and right triangle indices
         for(auto it=Triangles.begin(); it!=Triangles.end(); it++) {
-            if(it->center[index] < pointCut[index]) {
+            if(it->center[index] > pointCut[index]) { //TODO can we consider this comparison correct?
                 L_triangles_indices.push_back(counter);
             }
             else {

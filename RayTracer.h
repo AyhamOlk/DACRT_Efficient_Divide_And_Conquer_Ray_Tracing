@@ -65,10 +65,11 @@ public:
         // the starting point vector
         Vec3f L_pos = scene.light_source().pos;
         Vec3f hitPoint = normalize((1.f - u - v) * P[triangle[0]] + u * P[triangle[1]] + v * P[triangle[2]]);
+
+        //Other way
         Vec3f wi = hitPoint-L_pos;
         Material mat;
         Vec3f wo = mat.evaluateColorResponse(hitNormal, wi);
-
         return wo;
 
         // No shading so far, only normal visualization
@@ -87,7 +88,7 @@ public:
             progress++;
             if (progress % 10 == 0)
                 std::cout << ".";
-//#pragma omp parallel for
+#pragma omp parallel for
             for (int x = 0; x < w; x++) {
                 Vec3f colorResponse;
                 Ray ray = camera.rayAt (float (x) / w, 1.f - float (y) / h);
@@ -170,27 +171,27 @@ public:
         const auto& meshes = scene.meshes();
         float closest = std::numeric_limits<float>::max();
         bool intersectionFound = false;
-        /*for (size_t mIndex = 0; mIndex < meshes.size(); mIndex++) {
-
-        }*/
-        int mIndex = 0;
-        const auto& P = meshes[0].vertexPositions();
-        const auto& T = meshes[0].indexedTriangles();
-        for (size_t tIndex = 0; tIndex < Triangles.size(); tIndex++) {
-            const Vec3i& triangle = T[Triangles.at(tIndex).triangleIndex];
-            float ut, vt, dt;
-            if (ray.triangleIntersect(P[triangle[0]], P[triangle[1]], P[triangle[2]], ut, vt, dt) == true) {
-                if (dt > 0.f && dt < closest) {
-                    intersectionFound = true;
-                    closest = dt;
-                    meshIndex = mIndex;
-                    triangleIndex = tIndex;
-                    u = ut;
-                    v = vt;
-                    d = dt;
+        for (size_t mIndex = 0; mIndex < meshes.size(); mIndex++) {
+            //int mIndex = 0;
+            const auto& P = meshes[mIndex].vertexPositions();
+            const auto& T = meshes[mIndex].indexedTriangles();
+            for (size_t tIndex = 0; tIndex < Triangles.size(); tIndex++) {
+                const Vec3i& triangle = T[Triangles.at(tIndex).triangleIndex];
+                float ut, vt, dt;
+                if (ray.triangleIntersect(P[triangle[0]], P[triangle[1]], P[triangle[2]], ut, vt, dt) == true) {
+                    if (dt > 0.f && dt < closest) {
+                        intersectionFound = true;
+                        closest = dt;
+                        meshIndex = mIndex;
+                        triangleIndex = Triangles.at(tIndex).triangleIndex;
+                        u = ut;
+                        v = vt;
+                        d = dt;
+                        //return true;
+                    }
                 }
             }
-        }
+          }
         return intersectionFound;
     }
 
@@ -203,27 +204,48 @@ public:
         size_t h = image.height();
         const Camera& camera = scene.camera();
 
-//#pragma omp parallel for
+#pragma omp parallel for
         for(int i = 0; i<Rays.size(); i++) {
-            if(visited[Rays.at(i).x][Rays.at(i).y]) {
+           /* if(visited[Rays.at(i).x][Rays.at(i).y]) {
 
                 continue;
-            }
+            }*/
             visited[Rays.at(i).x][Rays.at(i).y] = true;
             counter++;
 
             float u, v, d;
             size_t meshIndex, triangleIndex;
-            Ray ray = camera.rayAt (float (Rays.at(i).x) / w, 1.f - float (Rays.at(i).y) / h);
-            bool intersectionFound = rayTrace_skip(ray, scene, meshIndex, triangleIndex, u, v, d, Triangles);
-            if (intersectionFound && d > 0.f && meshIndex==0){
 
+            //check
+
+            float u2, v2, d2;
+            size_t meshIndex2, triangleIndex2;
+
+
+            //Ray ray = camera.rayAt (float (Rays.at(i).x) / w, 1.f - float (Rays.at(i).y) / h);
+            bool intersectionFound = rayTrace_skip(Rays.at(i), scene, meshIndex, triangleIndex, u, v, d, Triangles);
+            //intersectionFound = rayTrace (Rays.at(i), scene, meshIndex2, triangleIndex2, u2, v2, d2);
+            /*if((meshIndex != meshIndex || triangleIndex != triangleIndex2) && intersectionFound) {
+
+                bool inside = false;
+                for(int i =0; i <Triangles.size(); i++) {
+                    if(triangleIndex2 == Triangles.at(i).triangleIndex) {
+                        inside = true;
+                        break;
+                    }
+                }
+                std::cout<<"\nTriangle index: "<<triangleIndex<<" correct: "<<triangleIndex2<< " --- is inside: "<<inside;
+            }*/
+
+            if (intersectionFound && d > 0.f ){
+
+                //image (Rays.at(i).x, Rays.at(i).y) = {1,0,0};
                 image (Rays.at(i).x, Rays.at(i).y) = shade (scene, meshIndex, triangleIndex, u, v);
 
 
 
             }
-            if (intersectionFound && meshIndex==1){
+            /*if (intersectionFound && meshIndex==1){
 
 
                 Ray ray_to_source(ray.m_origin + d*ray.m_direction, normalize(- scene.m_light_source.pos + ray.m_origin + d*ray.m_direction));
@@ -237,8 +259,8 @@ public:
                     //std::cout<<"NO intersecton \t";
                 }
 
-            }
+            }*/
         }
-        //image.savePPM ("DACRT2");
+
     }
 };
